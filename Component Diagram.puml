@@ -1,0 +1,58 @@
+@startuml
+skinparam componentStyle uml2
+
+package "GUI Subsystem (Python/Tkinter)" {
+    [Main Application] <<UI>> as Main
+    [Dialog Modules] <<Module>> as Dialogs
+    [Component Factories] <<Utility>> as Factories
+    [Ai Repaint Modules]<<Module>>as Repaint
+    [Camera Modules]<<Module>> as Camera
+    Main ..> Dialogs : 调用
+    Main ..> Factories : 调用
+
+}
+package "Image Repaint Subsystem (AI)" {
+
+    [Ai Repaint Manger] as Aliyun
+
+    Repaint ..>Aliyun : 调用
+}
+package "Image Processing Subsystem (Python)" {
+    [Background Adjust] as Background
+    [Portrait Adjust] as Portrait
+    [Binary Adjust] as Binary
+
+    Dialogs ..> Portrait
+    Dialogs ..> Binary
+    Dialogs ..> Background
+}
+
+
+package "Robot Control Subsystem (External)" {
+    component [RobotController.exe] <<C# / .NET>> as RobotExe
+    note right of RobotExe
+      由 robot_paint() 启动
+      通过启动C#进程来驱动机械臂绘图
+    end note
+}
+
+package "Resource Assets" {
+    folder "API" {
+        [url https://dashscope.aliyuncs.com/api/v1/services/aigc/image-generation/generation]
+    }
+    folder "Models" {
+        [MODNet Weight Files]
+    }
+    folder "Photo"{
+    [Camera for photo]
+    }
+}
+
+' 物理调用关系
+Main ..> RobotExe : Subprocess Call (Execute)
+
+Portrait ..> [MODNet Weight Files] : Load
+Aliyun ..> [url https://dashscope.aliyuncs.com/api/v1/services/aigc/image-generation/generation] : submit task
+Camera ..> [Camera for photo]:拍摄照片
+
+@enduml

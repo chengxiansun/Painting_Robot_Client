@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageOps
+import cv2
 import DialogFactory
+import BinImageDetailManger
 
 
 # ===================== 具体实现层 - 二值调节对话框 =====================
@@ -47,6 +49,12 @@ class BinaryAdjustDialog(DialogFactory.BaseDialog):
             self.display_image = Image.merge("RGBA",
                                              (binary_img, binary_img, binary_img, self.original_image.split()[3]))
             self._update_canvas_image()
+
+    def add_detail(self):
+        image_path = "camera/test.png"
+        img = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        img_manager = BinImageDetailManger.BinImageDetailManger()
+        '''添加人物细节，待完善'''
 
 
 class BinaryDialogFactory(DialogFactory.AbstractDialogFactory):

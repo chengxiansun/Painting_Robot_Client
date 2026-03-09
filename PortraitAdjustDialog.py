@@ -78,9 +78,16 @@ class PortraitAdjustDialog(DialogFactory.BaseDialog):
     def _choose_background(self):
         dialog = ImageBrowserDialog.ImageBrowserDialog(self, r"database", self._bind_background_image)
         self.wait_window(dialog)  # 阻塞直到对话框关闭
+
     def _bind_background_image(self, image):
         """回调函数：将选中的图片绑定到类属性，并转换为Tkinter可显示格式"""
         self.background_image = image
+
+    def get_portrait_image(self):
+        pass
+
+    def get_composite_image(self):
+        pass
 
 
 class PortraitAdjustDialogFactory(DialogFactory.AbstractDialogFactory):

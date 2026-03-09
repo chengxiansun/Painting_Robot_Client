@@ -1,0 +1,118 @@
+@startuml
+
+class FaceDrawingApp {
+ai_repaint() //使用AI对原始图片进行重绘
+ai_repaint_cancel()// 放弃AI重绘
+robot_paint()// 驱动机器臂绘图
+binary_adjust() //二值调节,将图片转化为黑白，并且白色头发能保留轮廓特征
+portrait_adjust() //人物调节，包括
+Image origin_image //原始图片
+Image ai_repaint_image //AI重绘图片
+Image preview_image //最终绘制图片预览
+}
+
+class ImageRepainter {
+ Image get_ai_repaint_image()
+ bool submit_task(self, image_path: str, style_index: int = 0)
+}
+FaceDrawingApp ..> ImageRepainter:依赖
+
+class ComponentFactory{
+create_canvas(self, parent, bg_color, highlight_color)
+create_button(self, parent, text, bg_color, fg_color, width, command)
+create_label(self, parent, text, style, foreground)
+create_combobox(self, parent, values, default_index, width)
+create_label_frame(self, parent, text, style, padding)
+create_paned_window(self, parent, orient)
+}
+FaceDrawingApp ..>  ComponentFactory:依赖
+class DialogFactoryManager{
+get_factory(dialog_type)
+}
+FaceDrawingApp ..>  DialogFactoryManager:依赖
+abstract class AbstractDialogFactory{
+create_dialog(self, parent, title="自定义对话框", image_path="")
+}
+class BaseDialog{
+_setup_style_config()
+_build_ui()
+_center_window
+_on_ok()
+create_button()
+load_image(img)
+}
+tk.Toplevel <|-- BaseDialog:继承
+class BinaryAdjustDialog{
+_build_mid_controls()
+_on_slider_change()
+add_detail()
+}
+
+class BinImageDetailManger{
+canny_edge_detection(low_threshold=50, high_threshold=150, save_result=False)
+dilate( kernel_size=(3, 3), iterations=1, save_result=False)
+erode( kernel_size=(3, 3), iterations=1, save_result=False)
+get_image()
+}
+class BinaryDialogFactory{
+ create_dialog(parent, title="二值调节对话框", image=None):
+}
+BaseDialog <|-- BinaryAdjustDialog:继承
+AbstractDialogFactory <|-- BinaryDialogFactory:继承
+BinaryDialogFactory..>  BinaryAdjustDialog:依赖
+DialogFactoryManager..>  BinaryDialogFactory:依赖
+BinaryAdjustDialog..>BinImageDetailManger:依赖
+
+class PortraitAdjustDialog{
+_build_mid_controls()
+_enable_brush_mode()
+_draw_on_canvas()
+_auto_cutout()
+get_portrait_image()
+get_composite_image()
+}
+class PortraitAdjustDialogFactory{
+create_dialog(parent, title="人物调节对话框", image=None)
+}
+class ModnetManager{
+ get_matte_image()
+ get_people_image()
+ process_image(self, image_path, save_matte=True, save_composite=True)
+ process_portrait_image(self, image:Image, save_matte=True, save_composite=True)
+}
+class MatteBasedCompositor{
+load_matte(matte_path, fg_h, fg_w)
+composite(fg_path, matte_path, bg_path, output_dir)
+}
+BaseDialog <|-- PortraitAdjustDialog:继承
+AbstractDialogFactory <|-- PortraitAdjustDialogFactory:继承
+PortraitAdjustDialogFactory..>  PortraitAdjustDialog:依赖
+DialogFactoryManager..> PortraitAdjustDialogFactory:依赖
+PortraitAdjustDialog..>ModnetManager:依赖
+PortraitAdjustDialog..>MatteBasedCompositor:依赖
+
+class BackgroundAdjustDialog{
+_build_mid_controls()
+choose_image()
+}
+class ImageBrowserDialog{
+_create_widgets()
+_on_canvas_configure(event)
+_load_images()
+_on_inner_frame_configure(event)
+_select_image(img_path, container)
+_add_new_image()
+_confirm_selection()
+}
+tk.Toplevel <|-- ImageBrowserDialog:继承
+class BackgroundAdjustDialogFactory{
+ create_dialog( parent, title="背景图片调节对话框",image=None):
+}
+
+BaseDialog <|-- BackgroundAdjustDialog:继承
+AbstractDialogFactory <|-- BackgroundAdjustDialogFactory:继承
+BackgroundAdjustDialogFactory..>  BackgroundAdjustDialog:依赖
+DialogFactoryManager..> BackgroundAdjustDialogFactory:依赖
+BackgroundAdjustDialog--> ImageBrowserDialog:关联
+
+@enduml

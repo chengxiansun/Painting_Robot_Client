@@ -1,0 +1,83 @@
+@startuml
+skinparam actor {
+  BackgroundColor #f0f8ff
+  BorderColor #2c3e50
+}
+skinparam useCase {
+  BackgroundColor #e8f4fd
+  BorderColor #3498db
+}
+skinparam package {
+  BackgroundColor #f9f9f9
+  BorderColor #bdc3c7
+}
+
+' 参与者
+actor "用户" as User
+
+' 主场景包
+package "人脸绘制应用核心场景" {
+  ' 基础操作
+  (打开主界面) as UC1
+  (加载图片) as UC2
+  (拍照获取图片) as UC3
+
+  ' AI重绘场景
+  (选择重绘风格) as UC4
+  (AI重绘图片) as UC5
+  (清空AI重绘结果) as UC6
+
+  ' 二值调节场景
+  (打开二值调节对话框) as UC7
+  (调节二值图片阈值) as UC8
+  (添加二值图片轮廓细节) as UC9
+  (二值调节结束) as UC19
+
+  ' 人物调节场景
+  (打开人物调节对话框) as UC10
+  (自动抠图) as UC11
+  (手动添加抠图细节) as UC12
+   (人物调节结束) as UC18
+  ' 背景调节场景
+  (打开背景调节对话框) as UC13
+  (浏览/添加背景图片) as UC14
+  (合成人物+背景图片) as UC15
+
+  ' 最终输出场景
+  (预览图片) as UC16
+  (驱动机器人绘图) as UC17
+}
+
+' 关联关系（体现操作依赖和执行顺序）
+User -- UC1 : 触发
+UC1 -- UC2 : 后续操作
+UC1 -- UC3 : 后续操作
+UC2 --> UC4 : 图片加载后激活
+UC3 --> UC4 : 图片加载后激活
+UC4 -- UC5 : 选择风格后执行
+UC5 -- UC6 : 可取消结果
+UC2 --> UC7 : 图片加载后激活
+UC3 --> UC7 : 图片加载后激活
+UC7 -- UC8 : 在对话框内执行
+UC7 -- UC9 : 在对话框内执行
+UC2 --> UC10 : 图片加载后激活
+UC3 --> UC10 : 图片加载后激活
+UC10 -- UC11 : 在对话框内执行
+UC11 -- UC12 : 不满意时执行
+UC11 --> UC13 : 抠图完成后激活
+UC12 --> UC13: 抠图完成后激活
+UC13 -- UC14 : 在对话框内执行
+UC14 -- UC15 : 选择背景后自动执行
+UC2 --> UC16 : 自动展示
+UC3 --> UC16 : 自动展示
+UC5 --> UC16 : 替换原始图片，展示AI合成图片
+UC8 --> UC18 : 展示二值调节后图片
+UC9 --> UC18 : 展示添加轮廓细节后图片
+UC11 --> UC19 : 展示抠图后图片（默认背景为白色）
+UC12 --> UC19 :  展示手动抠图后图片（默认背景为白色）
+UC19 --> UC16 : 展示调节后图片
+UC18 --> UC16 :  展示调节后图片
+UC15 --> UC16 : 合成后自动展示
+UC16 -- UC17 : 预览后执行
+
+@enduml
